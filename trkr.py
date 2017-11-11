@@ -1,8 +1,8 @@
 import datetime
-from collections import namedtuple
-
+import subprocess
 import os
 import configparser
+from collections import namedtuple
 
 import pygsheets
 from trello import TrelloClient
@@ -39,7 +39,7 @@ def pick_card(cards, title="Select card"):
 def validate_hours():
   while True:
     try:
-      hrs = float(input("Hours spent: "))
+      hrs = float(input("* Hours spent: "))
     except ValueError:
       print("Format Error: Must be a number")
       continue
@@ -87,7 +87,16 @@ now = datetime.datetime.now()
 timestamp = now.strftime("%m/%d/%Y %H:%M:%S")
 
 # Start requesting user input
-description = input("Description of work: ")
+description = input("* Description of work: ")
+if not description:
+  print("No description provided, using last commit message instead!")
+  description = subprocess.check_output([
+    "git",
+    "log",
+    "-1",
+    "--pretty=%B"
+  ]).strip().decode('ascii')
+
 hours = validate_hours()
 
 # Options for trello card selection
