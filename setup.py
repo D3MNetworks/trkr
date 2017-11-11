@@ -33,5 +33,8 @@ config["sheets"] = {
 print("Generate/ask for a keyfile and move it to ~/.trkr/keyfile.json")
 input("Press ENTER when completed")
 
+print("\nTIPS\n")
+print("echo \"alias trkr='python3 ~/.../trkr.py'\" >> ~/.zshrc")
+
 with open(config_path, "w+") as configfile:
   config.write(configfile)
