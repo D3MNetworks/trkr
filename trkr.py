@@ -17,17 +17,17 @@ def search_trello():
     query,
     True,
     ["cards"],
-    [config["trello_board_id"]]
+    [trello_config["board_id"]]
   )
   return pick_card(cards)
 
 def filter_trello():
-  board = trello_client.get_board(config["trello_board_id"])
+  board = trello_client.get_board(trello_config["board_id"])
   cards = board.get_cards(
     None,
     "visible"
   )
-  cards = filter(lambda x: config["trello_id"] in x.member_ids, cards)
+  cards = filter(lambda x: trello_config["user_id"] in x.member_ids, cards)
   return pick_card(list(cards), "Select from your cards")
 
 def pick_card(cards, title="Select card"):
