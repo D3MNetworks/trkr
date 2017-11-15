@@ -105,13 +105,9 @@ def pick_card(cards, title="Select card"):
 def validate_hours():
   while True:
     try:
-      hrs = float(input("* Hours spent: "))
+      return float(input("* Hours spent: "))
     except ValueError:
       print("Format Error: Must be a number")
-      continue
-    else:
-      return hrs
-      break
 
 def validate_date():
   while True:
@@ -119,10 +115,7 @@ def validate_date():
       date_text = input("Date (MM/DD/YYYY): ")
       if date_text:
         datetime.datetime.strptime(date_text, "%m/%d/%Y")
+        return date_text
     except ValueError:
       print("Format Error: Must be formatted as MM/DD/YYYY")
-      continue
-    else:
-      return date_text
-      break
 ##########
