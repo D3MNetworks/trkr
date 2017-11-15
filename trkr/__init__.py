@@ -10,8 +10,8 @@ Commands:
 
 import sys
 
-from trkr.commands.run import main as run
-from trkr.commands.setup import main as setup
+from trkr.run import main as run
+from trkr.setup import main as setup
 
 def main():
   if len(sys.argv) > 1:
