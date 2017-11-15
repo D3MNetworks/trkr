@@ -115,7 +115,7 @@ def validate_date():
       date_text = input("Date (MM/DD/YYYY): ")
       if date_text:
         datetime.datetime.strptime(date_text, "%m/%d/%Y")
-        return date_text
+      return date_text
     except ValueError:
       print("Format Error: Must be formatted as MM/DD/YYYY")
 ##########
