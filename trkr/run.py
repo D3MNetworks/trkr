@@ -2,11 +2,16 @@ import datetime
 import subprocess
 import os
 import configparser
+import argparse
 from collections import namedtuple
+from parse import parse
 
 import pygsheets
 from trello import TrelloClient
 from pick import pick
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--gtm", help="use git-time-metric", action="store_true")
 
 def main():
   # Config and Setup
@@ -30,22 +35,58 @@ def main():
   ps = pygsheets.authorize(service_file=keyfile)
   wks = ps.open_by_url(sheet_config.get("url")).worksheet_by_title(sheet_config.get("wks_name"))
 
-  # Get current datetime
-  now = datetime.datetime.now()
-  timestamp = now.strftime("%m/%d/%Y %H:%M:%S")
+  args = parser.parse_args()
+  if args.gtm:
+    gtm = subprocess.check_output([
+        "gtm",
+        "report",
+      ]).strip().decode('ascii')
 
-  # Start requesting user input
-  description = input("* Description of work: ")
-  if not description:
-    print("No description provided, using last commit message instead!")
-    description = subprocess.check_output([
-      "git",
-      "log",
-      "-1",
-      "--pretty=%B"
-    ]).strip().decode('ascii')
+    lines = gtm.splitlines()
 
-  hours = validate_hours()
+    commit = parse('{hash:S} {description}', lines[2])
+    metadata = parse('{time:tc} {:S} {:S} {username}', lines[3])
+
+    description = commit['description']
+
+    days = 0
+    hours = 0
+    mins = 0
+
+    time_spent = parse('{:s} {seconds:d}s {}', lines[-3])
+    if time_spent == None:
+      time_spent = parse('{:s} {minutes:d}m {seconds:d}s {}', lines[-3])
+      if time_spent == None:
+        time_spent = parse('{:s} {hours:d}h {minutes:d}m {seconds:d}s {}', lines[-3])
+        if time_spent == None:
+          time_spent = parse('{:s} {days:d}d {hours:d}h {minutes:d}m {seconds:d}s {}', lines[-3])
+
+          days = time_spent['days']
+        hours = time_spent['hours']
+      mins = time_spent['minutes']
+
+    timestamp = metadata['time'].strftime("%m/%d/%Y %H:%M:%S")
+    date = metadata['time'].strftime("%m/%d/%Y")
+
+    minutes = (int(days) * 60 * 24) + (int(hours) * 60) + int(mins)
+  else:
+    # Get current datetime
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%m/%d/%Y %H:%M:%S")
+
+    # Start requesting user input
+    description = input("* Description of work: ")
+    if not description:
+      print("No description provided, using last commit message instead!")
+      description = subprocess.check_output([
+        "git",
+        "log",
+        "-1",
+        "--pretty=%B"
+      ]).strip().decode('ascii')
+
+    minutes = validate_minutes()
+    date = validate_date() or now.strftime("%m/%d/%Y")
 
   # Options for trello card selection
   trello = input("[trello] Input/Search/Pick/None [i/s/p/n]: ")
@@ -58,13 +99,11 @@ def main():
   else:
     card_name = ""
 
-  date = validate_date() or now.strftime("%m/%d/%Y")
-
   wks.insert_rows(wks.rows - 1, 1, [
     timestamp,
     date,
     description,
-    hours,
+    minutes,
     card_name,
     email
   ], True)
@@ -102,10 +141,10 @@ def pick_card(cards, title="Select card"):
   option, index = pick(options, title)
   return cards[index].short_url
 
-def validate_hours():
+def validate_minutes():
   while True:
     try:
-      return float(input("* Hours spent: "))
+      return int(input("* Minutes spent: "))
     except ValueError:
       print("Format Error: Must be a number")
 
@@ -119,3 +158,6 @@ def validate_date():
     except ValueError:
       print("Format Error: Must be formatted as MM/DD/YYYY")
 ##########
+
+if __name__ == '__main__':
+  main()
