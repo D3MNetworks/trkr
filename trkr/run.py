@@ -10,10 +10,7 @@ import pygsheets
 from trello import TrelloClient
 from pick import pick
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--gtm", help="use git-time-metric", action="store_true")
-
-def main():
+def main(gtm):
   # Config and Setup
   config = configparser.ConfigParser()
   home = os.path.expanduser("~")
@@ -35,8 +32,7 @@ def main():
   ps = pygsheets.authorize(service_file=keyfile)
   wks = ps.open_by_url(sheet_config.get("url")).worksheet_by_title(sheet_config.get("wks_name"))
 
-  args = parser.parse_args()
-  if args.gtm:
+  if gtm:
     gtm = subprocess.check_output([
         "gtm",
         "report",
@@ -160,4 +156,8 @@ def validate_date():
 ##########
 
 if __name__ == '__main__':
-  main()
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--gtm", help="use git-time-metric", action="store_true")
+  args = parser.parse_args()
+
+  main(gtm=args.gtm)
