@@ -24,9 +24,9 @@ by running `trkr help`.
 Provide a description of the work accomplished. If none is provided, the commit
 message of the last commit at HEAD will be used.
 
-### Hours Worked
+### Minutes Worked
 
-Time worked in hours (must be a valid number).
+Time worked in minutes (must be a valid integer).
 
 ### Trello Card
 
