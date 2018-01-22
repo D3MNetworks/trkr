@@ -16,8 +16,8 @@ pip install trkr
 
 ## Usage
 
-Using trkr is as simple as running `trkr`. A list of valid command is available
-by running `trkr help`.
+Using trkr is as simple as running `trkr run`. A list of valid command is available
+by running `trkr --help`.
 
 ### Description
 

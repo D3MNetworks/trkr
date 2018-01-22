@@ -106,7 +106,7 @@ def main(gtm):
 
   # Also write to trkr journal
   journal = open(os.path.join(home, ".trkr/journal.csv"), "a+")
-  journal.write(f"\"{timestamp},{date},{description},{hours},{card_name},{email}\"\n")
+  journal.write(f"\"{timestamp},{date},{description},{minutes},{card_name},{email}\"\n")
   journal.close()
 
 ########## Conveniance methods
